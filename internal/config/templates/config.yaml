@@ -8,9 +8,9 @@ auth:
 
 token: OPENLIST_TOKEN # OpenList token (可选，会自动获取)
 
-# 阿里云Share配置
+# 阿里云盘Share配置
 aliyun_share:
-  enable: false # 是否启用阿里云
+  enable: false # 是否启用阿里云盘
   refresh_token: ALI_YUNPAN_REFRESH_TOKEN # 阿里云盘 RefreshToken
 
 # PikPakShare配置

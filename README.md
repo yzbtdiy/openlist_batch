@@ -149,6 +149,9 @@ onedrive_app:
 
 # 更新阿里云盘 RefreshToken
 ./openlist_batch -update ali
+
+# 导出 pikpakshare
+./openlist_batch -export pikpakshare
 ```
 
 ## 分享链接格式
