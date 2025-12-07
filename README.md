@@ -1,6 +1,10 @@
 # OpenList Batch
 
-自用 OpenList 批量存储管理工具，目前支持批量添加阿里云盘、PikPak、OneDrive 分享链接。
+OpenList 批量存储管理工具，目前支持批量添加阿里云盘分享链接、PikPak分享链接、OneDriveApp挂载。
+
+添加存储API所用API在OpenList v4.1.8抓包测试。
+
+有需求请提 Issues, 最好说明使用的版本。
 
 OpenList Github仓库地址: https://github.com/OpenListTeam/OpenList
 
@@ -28,9 +32,9 @@ openlist_batch/
 │   │   ├── loader.go         # 配置加载器
 │   │   └── templates/        # 配置模板
 │   │       ├── config.yaml
-│   │       ├── aliyun.yaml
-│   │       ├── pikpak.yaml
-│   │       └── onedrive.yaml
+│   │       ├── aliyun_share.yaml
+│   │       ├── pikpak_share.yaml
+│   │       └── onedrive_app.yaml
 │   ├── model/
 │   │   ├── request.go        # 请求模型
 │   │   └── response.go       # 响应模型
@@ -59,7 +63,7 @@ go build -o openlist_batch ./cmd/openlist_batch
 ### 使用 go install
 
 ```bash
-go install github.com/yzbtdiy/openlist_batch/cmd/openlist_batch@latest
+go install github.com/yzbtdiy/openlist_batch/cmd/openlist_batch@VERSION
 ```
 
 ## 使用方法
@@ -107,7 +111,7 @@ onedrive_app:
 
 根据启用的存储类型，编辑对应的分享文件：
 
-**aliyun.yaml** (阿里云盘):
+**aliyun_share.yaml** (阿里云盘):
 ```yaml
 电视剧:
   西游记86版: https://www.aliyundrive.com/s/MmMR3zaoXLf/folder/61d259418d27bae8656f47aca23ee03b40275432
@@ -117,14 +121,14 @@ onedrive_app:
   林正英合集: https://www.aliyundrive.com/s/PrcaqZ2XPxM/folder/621c950a633c7c7ab8de4db1a86a1232dea530d1
 ```
 
-**pikpak.yaml** (PikPak):
+**pikpak_share.yaml** (PikPak):
 ```yaml
 电影:
   太空之城: https://mypikpak.com/s/VNP2_7OhUCdC2aI3JSSnD--eo1
   阿飞正传: https://mypikpak.com/s/VNP2d8tHvt4TVPKPacCUYRaXo1/VNP2G0YUcYmtVw025fNVqgDdo1
 ```
 
-**onedrive.yaml** (OneDrive):
+**onedrive_app.yaml** (OneDrive):
 ```yaml
 个人网盘:
   工作文件: 1:user@example.com:/Work
@@ -173,8 +177,7 @@ tid:email:path
 
 - OpenList URL 结尾不要加 `/`
 - 首次运行需要配置用户名密码或有效 Token
-- 阿里云盘分享链接需要包含 folder 后的 id
-- 此工具仅用于批量挂载，播放问题请参考 OpenList 官方文档
+- 此工具仅用于批量挂载，遇到问题请参考 [OpenList 官方文档](https://doc.oplist.org/) 或 [Github Issues](https://github.com/OpenListTeam/OpenList/issues)
 
 ## 许可证
 

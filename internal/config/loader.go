@@ -14,10 +14,10 @@ import (
 var templates embed.FS
 
 const (
-	ConfigFile   = "config.yaml"
-	AliyunFile   = "aliyun.yaml"
-	PikPakFile   = "pikpak.yaml"
-	OneDriveFile = "onedrive.yaml"
+	ConfigFile      = "config.yaml"
+	AliyunShareFile = "aliyun_share.yaml"
+	PikPakShareFile = "pikpak_share.yaml"
+	OneDriveAppFile = "onedrive_app.yaml"
 )
 
 // Loader 配置加载器
@@ -88,6 +88,16 @@ func (l *Loader) SaveConfig(cfg *Config) error {
 	return os.WriteFile(path, data, 0644)
 }
 
+// SaveShareList 保存分享链接列表到文件
+func (l *Loader) SaveShareList(filename string, list ShareList) error {
+	path := l.filePath(filename)
+	data, err := yaml.Marshal(list)
+	if err != nil {
+		return fmt.Errorf("序列化分享列表失败: %w", err)
+	}
+	return os.WriteFile(path, data, 0644)
+}
+
 // FileExists 检查文件是否存在
 func (l *Loader) FileExists(filename string) bool {
 	path := l.filePath(filename)
@@ -126,17 +136,17 @@ func (cfg *Config) Validate() error {
 		return fmt.Errorf("token 和用户密码至少需要配置一项")
 	}
 
-	if cfg.Aliyun.Enable {
-		if cfg.Aliyun.RefreshToken == "" || cfg.Aliyun.RefreshToken == "ALI_YUNPAN_REFRESH_TOKEN" {
-			return fmt.Errorf("阿里云盘需要配置 refresh_token")
+	if cfg.AliyunShare.Enable {
+		if cfg.AliyunShare.RefreshToken == "" || cfg.AliyunShare.RefreshToken == "ALI_YUNPAN_REFRESH_TOKEN" {
+			return fmt.Errorf("阿里云盘分享需要配置 refresh_token")
 		}
 	}
 
-	if cfg.OneDrive.Enable {
-		if len(cfg.OneDrive.Tenants) == 0 {
+	if cfg.OneDriveApp.Enable {
+		if len(cfg.OneDriveApp.Tenants) == 0 {
 			return fmt.Errorf("OneDrive 需要配置租户信息")
 		}
-		for _, t := range cfg.OneDrive.Tenants {
+		for _, t := range cfg.OneDriveApp.Tenants {
 			if t.ClientID == "" || t.ClientID == "CLIENT_ID" ||
 				t.ClientSecret == "" || t.ClientSecret == "CLIENT_SECRET" ||
 				t.TenantID == "" || t.TenantID == "TENANT_ID" {

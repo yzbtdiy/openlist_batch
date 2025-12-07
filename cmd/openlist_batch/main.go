@@ -1,6 +1,6 @@
 // OpenList Batch - OpenList 批量存储管理工具
 //
-// 支持批量添加阿里云盘、PikPak、OneDrive 分享链接到 OpenList
+// 支持批量添加阿里云盘分享链接、PikPak分享链接、OneDriveApp 到 OpenList
 package main
 
 import (
@@ -20,6 +20,9 @@ var (
 
 	updateFlag = flag.String("update", "", `更新存储:
   ali    更新阿里云盘 refresh_token`)
+
+	exportFlag = flag.String("export", "", `导出存储到yaml文件:
+  pikpakshare    导出 PikPakShare 存储`)
 )
 
 func main() {
@@ -49,30 +52,30 @@ func main() {
 	}
 
 	// 检查分享文件
-	if cfg.Aliyun.Enable && !loader.FileExists(config.AliyunFile) {
+	if cfg.AliyunShare.Enable && !loader.FileExists(config.AliyunShareFile) {
 		log.Println("阿里云盘分享文件不存在，正在生成...")
-		if err := loader.GenerateTemplate(config.AliyunFile); err != nil {
+		if err := loader.GenerateTemplate(config.AliyunShareFile); err != nil {
 			log.Fatalf("生成分享文件失败: %v", err)
 		}
-		log.Println("已生成 aliyun.yaml，请添加分享链接后重新运行")
+		log.Println("已生成 aliyun_share.yaml，请添加分享链接后重新运行")
 		return
 	}
 
-	if cfg.PikPak.Enable && !loader.FileExists(config.PikPakFile) {
+	if cfg.PikPakShare.Enable && !loader.FileExists(config.PikPakShareFile) {
 		log.Println("PikPak 分享文件不存在，正在生成...")
-		if err := loader.GenerateTemplate(config.PikPakFile); err != nil {
+		if err := loader.GenerateTemplate(config.PikPakShareFile); err != nil {
 			log.Fatalf("生成分享文件失败: %v", err)
 		}
-		log.Println("已生成 pikpak.yaml，请添加分享链接后重新运行")
+		log.Println("已生成 pikpak_share.yaml，请添加分享链接后重新运行")
 		return
 	}
 
-	if cfg.OneDrive.Enable && !loader.FileExists(config.OneDriveFile) {
+	if cfg.OneDriveApp.Enable && !loader.FileExists(config.OneDriveAppFile) {
 		log.Println("OneDrive 配置文件不存在，正在生成...")
-		if err := loader.GenerateTemplate(config.OneDriveFile); err != nil {
+		if err := loader.GenerateTemplate(config.OneDriveAppFile); err != nil {
 			log.Fatalf("生成配置文件失败: %v", err)
 		}
-		log.Println("已生成 onedrive.yaml，请配置后重新运行")
+		log.Println("已生成 onedrive_app.yaml，请配置后重新运行")
 		return
 	}
 
@@ -102,6 +105,12 @@ func main() {
 		return
 	}
 
+	// 处理导出命令
+	if *exportFlag != "" {
+		handleExport(svc, loader, *exportFlag)
+		return
+	}
+
 	// 批量添加存储
 	addStorages(svc, cfg, loader)
 }
@@ -127,11 +136,11 @@ func handleDelete(svc *service.BatchService, mode string) {
 func handleUpdate(svc *service.BatchService, cfg *config.Config, mode string) {
 	switch mode {
 	case "ali":
-		if !cfg.Aliyun.Enable {
+		if !cfg.AliyunShare.Enable {
 			log.Fatal("阿里云盘未启用")
 		}
 		log.Println("正在更新阿里云盘 RefreshToken...")
-		if err := svc.UpdateAliyunRefreshToken(cfg.Aliyun.RefreshToken); err != nil {
+		if err := svc.UpdateAliyunRefreshToken(cfg.AliyunShare.RefreshToken); err != nil {
 			log.Fatalf("更新失败: %v", err)
 		}
 	default:
@@ -140,40 +149,63 @@ func handleUpdate(svc *service.BatchService, cfg *config.Config, mode string) {
 	}
 }
 
+func handleExport(svc *service.BatchService, loader *config.Loader, mode string) {
+	switch mode {
+	case "pikpakshare":
+		log.Println("正在导出 PikPakShare 存储...")
+		shareList, err := svc.ExportPikPakShare()
+		if err != nil {
+			log.Fatalf("导出失败: %v", err)
+		}
+		if len(shareList) == 0 {
+			log.Println("没有找到 PikPakShare 存储")
+			return
+		}
+		outputFile := "pikpak_share_export.yaml"
+		if err := loader.SaveShareList(outputFile, shareList); err != nil {
+			log.Fatalf("保存导出文件失败: %v", err)
+		}
+		log.Printf("已导出到 %s", outputFile)
+	default:
+		log.Printf("未知的导出模式: %s", mode)
+		os.Exit(1)
+	}
+}
+
 func addStorages(svc *service.BatchService, cfg *config.Config, loader *config.Loader) {
 	// 添加阿里云盘分享
-	if cfg.Aliyun.Enable {
-		shares, err := loader.LoadShareList(config.AliyunFile)
+	if cfg.AliyunShare.Enable {
+		shares, err := loader.LoadShareList(config.AliyunShareFile)
 		if err != nil {
 			log.Printf("加载阿里云盘分享失败: %v", err)
 		} else {
 			log.Println("正在添加阿里云盘分享...")
-			aliyun := provider.NewAliyun(cfg.Aliyun.RefreshToken)
+			aliyun := provider.NewAliyunShare(cfg.AliyunShare.RefreshToken)
 			svc.BatchAddShares(aliyun, shares)
 		}
 	}
 
 	// 添加 PikPak 分享
-	if cfg.PikPak.Enable {
-		shares, err := loader.LoadShareList(config.PikPakFile)
+	if cfg.PikPakShare.Enable {
+		shares, err := loader.LoadShareList(config.PikPakShareFile)
 		if err != nil {
 			log.Printf("加载 PikPak 分享失败: %v", err)
 		} else {
 			log.Println("正在添加 PikPak 分享...")
-			pikpak := provider.NewPikPak(cfg.PikPak.Username, cfg.PikPak.Password, cfg.PikPak.UseTranscodingAddress)
+			pikpak := provider.NewPikPakShare(cfg.PikPakShare.Platform, cfg.PikPakShare.UseTranscodingAddress)
 			svc.BatchAddShares(pikpak, shares)
 		}
 	}
 
 	// 添加 OneDrive 应用
-	if cfg.OneDrive.Enable {
-		shares, err := loader.LoadShareList(config.OneDriveFile)
+	if cfg.OneDriveApp.Enable {
+		shares, err := loader.LoadShareList(config.OneDriveAppFile)
 		if err != nil {
 			log.Printf("加载 OneDrive 配置失败: %v", err)
 		} else {
 			log.Println("正在添加 OneDrive 应用...")
-			onedrive := provider.NewOneDrive(cfg.OneDrive.Region, cfg.OneDrive.Tenants)
-			svc.BatchAddOneDrive(onedrive, shares)
+			onedrive := provider.NewOneDriveApp(cfg.OneDriveApp.Region, cfg.OneDriveApp.Tenants)
+			svc.BatchAddOneDriveApp(onedrive, shares)
 		}
 	}
 

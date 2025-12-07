@@ -1,30 +1,29 @@
 # OpenList 配置
-url: OPENLIST_URL  # OpenList 地址，结尾不要加 /
+url: OPENLIST_URL # OpenList 地址，结尾不要加 /
 
 # 认证信息 (token 和用户密码至少配置一项)
 auth:
-  username: USERNAME  # OpenList 用户名
-  password: PASSWORD  # OpenList 密码
+  username: USERNAME # OpenList 用户名
+  password: PASSWORD # OpenList 密码
 
-token: OPENLIST_TOKEN  # OpenList token (可选，会自动获取)
+token: OPENLIST_TOKEN # OpenList token (可选，会自动获取)
 
-# 阿里云盘配置
-aliyun:
-  enable: false  # 是否启用阿里云盘
-  refresh_token: ALI_YUNPAN_REFRESH_TOKEN  # 阿里云盘 RefreshToken
+# 阿里云Share配置
+aliyun_share:
+  enable: false # 是否启用阿里云
+  refresh_token: ALI_YUNPAN_REFRESH_TOKEN # 阿里云盘 RefreshToken
 
-# PikPak 配置
-pikpak:
-  enable: false  # 是否启用 PikPak
-  use_transcoding_address: true  # 是否使用转码地址
-  username: PIKPAK_USERNAME  # PikPak 用户名
-  password: PIKPAK_PASSWORD  # PikPak 密码
+# PikPakShare配置
+pikpak_share:
+  enable: false # 是否启用 PikPak
+  use_transcoding_address: true # 是否使用转码地址
+  platform: android # 设备平台, 可选值: android, ios, web
 
-# OneDrive APP 配置
+# OneDrive App配置
 onedrive_app:
-  enable: false  # 是否启用 OneDrive
-  region: global  # 区域: global
-  tenants:  # 租户列表, 可以配置多个租户
+  enable: false # 是否启用 OneDrive
+  region: global # 区域: global
+  tenants: # 租户列表, 可以配置多个租户
     - id: 1
       client_id: CLIENT_ID
       client_secret: CLIENT_SECRET

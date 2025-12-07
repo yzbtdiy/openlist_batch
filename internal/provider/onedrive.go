@@ -11,33 +11,33 @@ import (
 	"github.com/yzbtdiy/openlist_batch/internal/model"
 )
 
-// OneDrive OneDrive APP 提供商
-type OneDrive struct {
+// OneDriveApp OneDrive APP 提供商
+type OneDriveApp struct {
 	Region  string
 	Tenants []config.Tenant
 }
 
-// NewOneDrive 创建 OneDrive 提供商
-func NewOneDrive(region string, tenants []config.Tenant) *OneDrive {
-	return &OneDrive{
+// NewOneDriveApp 创建 OneDrive 提供商
+func NewOneDriveApp(region string, tenants []config.Tenant) *OneDriveApp {
+	return &OneDriveApp{
 		Region:  region,
 		Tenants: tenants,
 	}
 }
 
 // Name 返回提供商名称
-func (o *OneDrive) Name() string {
+func (o *OneDriveApp) Name() string {
 	return "OneDrive APP"
 }
 
 // Driver 返回 OpenList 驱动名称
-func (o *OneDrive) Driver() string {
+func (o *OneDriveApp) Driver() string {
 	return "OnedriveAPP"
 }
 
 // BuildRequest 构建存储挂载请求
 // emailInfo 格式: "tid:email:path" 或 "tid:email"
-func (o *OneDrive) BuildRequest(mountPath string, emailInfo string) (*model.StorageRequest, error) {
+func (o *OneDriveApp) BuildRequest(mountPath string, emailInfo string) (*model.StorageRequest, error) {
 	parts := strings.Split(emailInfo, ":")
 	if len(parts) < 2 || len(parts) > 3 {
 		return nil, fmt.Errorf("无效的 OneDrive 配置格式: %s, 应为 tid:email[:path]", emailInfo)
@@ -60,7 +60,7 @@ func (o *OneDrive) BuildRequest(mountPath string, emailInfo string) (*model.Stor
 	}
 
 	tenant := o.Tenants[tid-1]
-	addition := model.OneDriveAddition{
+	addition := model.OneDriveAppAddition{
 		RootFolderPath: folderPath,
 		Region:         o.Region,
 		ClientId:       tenant.ClientID,

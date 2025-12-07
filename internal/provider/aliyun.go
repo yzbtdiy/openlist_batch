@@ -10,28 +10,28 @@ import (
 	"github.com/yzbtdiy/openlist_batch/internal/model"
 )
 
-// Aliyun 阿里云盘提供商
-type Aliyun struct {
+// AliyunShare 阿里云盘提供商
+type AliyunShare struct {
 	RefreshToken string
 }
 
-// NewAliyun 创建阿里云盘提供商
-func NewAliyun(refreshToken string) *Aliyun {
-	return &Aliyun{RefreshToken: refreshToken}
+// NewAliyunShare 创建阿里云盘提供商
+func NewAliyunShare(refreshToken string) *AliyunShare {
+	return &AliyunShare{RefreshToken: refreshToken}
 }
 
 // Name 返回提供商名称
-func (a *Aliyun) Name() string {
+func (a *AliyunShare) Name() string {
 	return "阿里云盘"
 }
 
 // Driver 返回 OpenList 驱动名称
-func (a *Aliyun) Driver() string {
+func (a *AliyunShare) Driver() string {
 	return "AliyundriveShare"
 }
 
 // BuildRequest 构建存储挂载请求
-func (a *Aliyun) BuildRequest(mountPath string, shareURL string) (*model.StorageRequest, error) {
+func (a *AliyunShare) BuildRequest(mountPath string, shareURL string) (*model.StorageRequest, error) {
 	parsed, err := url.Parse(shareURL)
 	if err != nil {
 		return nil, fmt.Errorf("解析分享链接失败: %w", err)
@@ -49,7 +49,7 @@ func (a *Aliyun) BuildRequest(mountPath string, shareURL string) (*model.Storage
 	shareID := pathParts[2]
 	folderID := pathParts[4]
 
-	addition := model.AliyunAddition{
+	addition := model.AliyunShareAddition{
 		RefreshToken:   a.RefreshToken,
 		ShareId:        shareID,
 		SharePwd:       sharePwd,
@@ -81,8 +81,8 @@ func (a *Aliyun) BuildRequest(mountPath string, shareURL string) (*model.Storage
 }
 
 // BuildUpdateRequest 构建更新请求 (更新 RefreshToken)
-func (a *Aliyun) BuildUpdateRequest(item model.StorageItem, newToken string) (*model.StorageRequest, error) {
-	var oldAddition model.AliyunAddition
+func (a *AliyunShare) BuildUpdateRequest(item model.StorageItem, newToken string) (*model.StorageRequest, error) {
+	var oldAddition model.AliyunShareAddition
 	if err := json.Unmarshal([]byte(item.Addition), &oldAddition); err != nil {
 		return nil, fmt.Errorf("解析原有附加信息失败: %w", err)
 	}

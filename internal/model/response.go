@@ -23,20 +23,24 @@ type StorageListResponse struct {
 
 // StorageItem 存储项详细信息
 type StorageItem struct {
-	Id              int       `json:"id"`
-	MountPath       string    `json:"mount_path"`
-	Order           int       `json:"order"`
-	Driver          string    `json:"driver"`
-	CacheExpiration int       `json:"cache_expiration"`
-	Status          string    `json:"status"`
-	Addition        string    `json:"addition"`
-	Remark          string    `json:"remark"`
-	Modified        time.Time `json:"modified"`
-	Disabled        bool      `json:"disabled"`
-	OrderBy         string    `json:"order_by"`
-	OrderDirection  string    `json:"order_direction"`
-	ExtractFolder   string    `json:"extract_folder"`
-	WebProxy        bool      `json:"web_proxy"`
-	WebdavPolicy    string    `json:"webdav_policy"`
-	DownProxyURL    string    `json:"down_proxy_url"`
+	Id               int       `json:"id"`
+	MountPath        string    `json:"mount_path"`
+	Order            int       `json:"order"`
+	Driver           string    `json:"driver"`
+	CacheExpiration  int       `json:"cache_expiration"`
+	Status           string    `json:"status"`
+	Addition         string    `json:"addition"`
+	Remark           string    `json:"remark"`
+	Modified         time.Time `json:"modified"`
+	Disabled         bool      `json:"disabled"`
+	DisableIndex     bool      `json:"disable_index"`
+	EnableSign       bool      `json:"enable_sign"`
+	OrderBy          string    `json:"order_by"`
+	OrderDirection   string    `json:"order_direction"`
+	ExtractFolder    string    `json:"extract_folder"`
+	WebProxy         bool      `json:"web_proxy"`
+	WebdavPolicy     string    `json:"webdav_policy"`
+	ProxyRange       bool      `json:"proxy_range"`
+	DownProxyURL     string    `json:"down_proxy_url"`
+	DisableProxySign bool      `json:"disable_proxy_sign"`
 }

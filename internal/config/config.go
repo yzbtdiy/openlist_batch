@@ -3,12 +3,12 @@ package config
 
 // Config 主配置结构
 type Config struct {
-	URL      string   `yaml:"url"`
-	Auth     Auth     `yaml:"auth"`
-	Token    string   `yaml:"token"`
-	Aliyun   Aliyun   `yaml:"aliyun"`
-	PikPak   PikPak   `yaml:"pikpak"`
-	OneDrive OneDrive `yaml:"onedrive_app"`
+	URL         string      `yaml:"url"`
+	Auth        Auth        `yaml:"auth"`
+	Token       string      `yaml:"token"`
+	AliyunShare AliyunShare `yaml:"aliyun_share"`
+	PikPakShare PikPakShare `yaml:"pikpak_share"`
+	OneDriveApp OneDriveApp `yaml:"onedrive_app"`
 }
 
 // Auth OpenList 登录认证信息
@@ -17,22 +17,29 @@ type Auth struct {
 	Password string `yaml:"password"`
 }
 
-// Aliyun 阿里云盘配置
-type Aliyun struct {
+// 阿里云盘配置
+type AliyunShare struct {
 	Enable       bool   `yaml:"enable"`
 	RefreshToken string `yaml:"refresh_token"`
 }
 
-// PikPak PikPak 配置
+// PikPak 配置
 type PikPak struct {
-	Enable                bool   `yaml:"enable"`
-	UseTranscodingAddress bool   `yaml:"use_transcoding_address"`
-	Username              string `yaml:"username"`
-	Password              string `yaml:"password"`
+	Enable       bool   `yaml:"enable"`
+	Username     string `yaml:"username"`
+	Password     string `yaml:"password"`
+	Platform     string `yaml:"platform"`
+	RefreshToken string `yaml:"refresh_token"`
 }
 
-// OneDrive OneDrive APP 配置
-type OneDrive struct {
+type PikPakShare struct {
+	Enable                bool   `yaml:"enable"`
+	UseTranscodingAddress bool   `yaml:"use_transcoding_address"`
+	Platform              string `yaml:"platform"`
+}
+
+// OneDrive APP 配置
+type OneDriveApp struct {
 	Enable  bool     `yaml:"enable"`
 	Region  string   `yaml:"region"`
 	Tenants []Tenant `yaml:"tenants"`

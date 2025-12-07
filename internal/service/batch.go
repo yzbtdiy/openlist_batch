@@ -195,8 +195,8 @@ func (s *BatchService) BatchAddShares(p provider.Provider, shares config.ShareLi
 	wg.Wait()
 }
 
-// BatchAddOneDrive 批量添加 OneDrive 应用
-func (s *BatchService) BatchAddOneDrive(p *provider.OneDrive, appList config.ShareList) {
+// BatchAddOneDriveApp 批量添加 OneDrive 应用
+func (s *BatchService) BatchAddOneDriveApp(p *provider.OneDriveApp, appList config.ShareList) {
 	var wg sync.WaitGroup
 
 	for category, appMap := range appList {
@@ -221,7 +221,6 @@ func (s *BatchService) BatchAddOneDrive(p *provider.OneDrive, appList config.Sha
 			}(category, name, emailInfo)
 		}
 	}
-
 	wg.Wait()
 }
 
@@ -270,7 +269,7 @@ func (s *BatchService) UpdateAliyunRefreshToken(newToken string) error {
 		return err
 	}
 
-	aliyunProvider := provider.NewAliyun(newToken)
+	aliyunProvider := provider.NewAliyunShare(newToken)
 
 	for _, item := range list.Content {
 		if item.Driver != aliyunProvider.Driver() {
@@ -324,6 +323,99 @@ func (s *BatchService) DeleteStorageByID(ids []string) error {
 	}
 
 	return nil
+}
+
+// ExportPikPakShare 导出 PikPakShare 存储到 ShareList 格式
+func (s *BatchService) ExportPikPakShare() (config.ShareList, error) {
+	list, err := s.GetStorageList()
+	if err != nil {
+		return nil, fmt.Errorf("获取存储列表失败: %w", err)
+	}
+
+	result := make(config.ShareList)
+
+	for _, item := range list.Content {
+		if item.Driver != "PikPakShare" {
+			continue
+		}
+
+		// 解析 mount_path: /分类/资源名
+		parts := splitMountPath(item.MountPath)
+		if len(parts) < 2 {
+			log.Printf("跳过无效的挂载路径: %s", item.MountPath)
+			continue
+		}
+
+		category := parts[0]
+		name := parts[1]
+
+		// 解析 addition 获取分享信息
+		var addition model.PikPakShareAddition
+		if err := json.Unmarshal([]byte(item.Addition), &addition); err != nil {
+			log.Printf("解析存储附加信息失败 (%s): %v", item.MountPath, err)
+			continue
+		}
+
+		// 构建分享链接
+		shareURL := buildPikPakShareURL(addition)
+
+		// 添加到结果
+		if result[category] == nil {
+			result[category] = make(map[string]string)
+		}
+		result[category][name] = shareURL
+	}
+
+	return result, nil
+}
+
+// splitMountPath 分割挂载路径
+func splitMountPath(mountPath string) []string {
+	// 去除开头的 /
+	if len(mountPath) > 0 && mountPath[0] == '/' {
+		mountPath = mountPath[1:]
+	}
+
+	parts := make([]string, 0)
+	for _, p := range splitPath(mountPath) {
+		if p != "" {
+			parts = append(parts, p)
+		}
+	}
+	return parts
+}
+
+// splitPath 按 / 分割路径
+func splitPath(path string) []string {
+	result := make([]string, 0)
+	start := 0
+	for i := 0; i < len(path); i++ {
+		if path[i] == '/' {
+			if i > start {
+				result = append(result, path[start:i])
+			}
+			start = i + 1
+		}
+	}
+	if start < len(path) {
+		result = append(result, path[start:])
+	}
+	return result
+}
+
+// buildPikPakShareURL 根据 addition 构建 PikPak 分享链接
+func buildPikPakShareURL(addition model.PikPakShareAddition) string {
+	baseURL := "https://mypikpak.com/s/" + addition.ShareId
+
+	if addition.RootFolderId != "" {
+		baseURL += "/" + addition.RootFolderId
+	}
+
+	if addition.SharePwd != "" {
+		baseURL += "?pwd=" + addition.SharePwd
+	}
+
+	return baseURL
 }
 
 // Close 关闭服务

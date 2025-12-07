@@ -10,34 +10,32 @@ import (
 	"github.com/yzbtdiy/openlist_batch/internal/model"
 )
 
-// PikPak PikPak 提供商
-type PikPak struct {
-	Username              string
-	Password              string
+// PikPakShare 提供商
+type PikPakShare struct {
+	Platform              string
 	UseTranscodingAddress bool
 }
 
-// NewPikPak 创建 PikPak 提供商
-func NewPikPak(username, password string, useTranscoding bool) *PikPak {
-	return &PikPak{
-		Username:              username,
-		Password:              password,
+// NewPikPakShare 创建 PikPakShare 提供商
+func NewPikPakShare(platform string, useTranscoding bool) *PikPakShare {
+	return &PikPakShare{
+		Platform:              platform,
 		UseTranscodingAddress: useTranscoding,
 	}
 }
 
 // Name 返回提供商名称
-func (p *PikPak) Name() string {
+func (p *PikPakShare) Name() string {
 	return "PikPak"
 }
 
 // Driver 返回 OpenList 驱动名称
-func (p *PikPak) Driver() string {
+func (p *PikPakShare) Driver() string {
 	return "PikPakShare"
 }
 
 // BuildRequest 构建存储挂载请求
-func (p *PikPak) BuildRequest(mountPath string, shareURL string) (*model.StorageRequest, error) {
+func (p *PikPakShare) BuildRequest(mountPath string, shareURL string) (*model.StorageRequest, error) {
 	parsed, err := url.Parse(shareURL)
 	if err != nil {
 		return nil, fmt.Errorf("解析分享链接失败: %w", err)
@@ -58,15 +56,12 @@ func (p *PikPak) BuildRequest(mountPath string, shareURL string) (*model.Storage
 		folderID = pathParts[3]
 	}
 
-	addition := model.PikPakAddition{
+	addition := model.PikPakShareAddition{
 		RootFolderId:          folderID,
-		Username:              p.Username,
-		Password:              p.Password,
 		ShareId:               shareID,
 		SharePwd:              sharePwd,
-		OrderBy:               "",
-		OrderDirection:        "",
-		Platform:              "android",
+		Platform:              p.Platform,
+		DeviceId:              "",
 		UseTranscodingAddress: p.UseTranscodingAddress,
 	}
 
@@ -76,18 +71,20 @@ func (p *PikPak) BuildRequest(mountPath string, shareURL string) (*model.Storage
 	}
 
 	return &model.StorageRequest{
-		MountPath:       mountPath,
-		Order:           0,
-		Remark:          "",
-		CacheExpiration: 30,
-		WebProxy:        false,
-		WebdavPolicy:    "302_redirect",
-		DownProxyUrl:    "",
-		OrderBy:         "",
-		OrderDirection:  "",
-		ExtractFolder:   "",
-		EnableSign:      false,
-		Driver:          p.Driver(),
-		Addition:        string(additionJSON),
+		MountPath:        mountPath,
+		Order:            0,
+		Remark:           "",
+		CacheExpiration:  30,
+		WebProxy:         false,
+		WebdavPolicy:     "302_redirect",
+		DownProxyUrl:     "",
+		DisableProxySign: false,
+		OrderBy:          "",
+		OrderDirection:   "",
+		ExtractFolder:    "",
+		DisableIndex:     false,
+		EnableSign:       false,
+		Driver:           p.Driver(),
+		Addition:         string(additionJSON),
 	}, nil
 }
