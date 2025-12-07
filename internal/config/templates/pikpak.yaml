@@ -1,0 +1,12 @@
+# PikPak 分享链接
+# 格式:
+#   分类名:
+#     资源名: 分享链接
+#
+# 分享链接格式: https://mypikpak.com/s/shareId 或 https://mypikpak.com/s/shareId/folderId?pwd=提取码
+
+电视剧:
+  示例剧集: https://mypikpak.com/s/xxx
+
+电影:
+  示例电影: https://mypikpak.com/s/xxx/xxx

@@ -1,0 +1,14 @@
+# 阿里云盘分享链接
+# 格式: 
+#   分类名:
+#     资源名: 分享链接
+#
+# 分享链接格式: https://www.aliyundrive.com/s/shareId/folder/folderId?pwd=提取码
+# 注意: 链接必须包含 folder/folderId 部分, 没有提取码可以省略
+
+电视剧:
+  示例剧集:  https://www.aliyundrive.com/s/xxx/folder/xxx
+
+电影:
+  示例电影: https://www.aliyundrive.com/s/xxx/folder/xxx
+

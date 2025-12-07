@@ -1,0 +1,13 @@
+# OneDrive APP 配置
+# 格式:
+#   分类名:
+#     挂载名: "tid:email:path"
+#
+# 参数说明:
+#   tid: 租户ID索引 (对应 config.yaml 中 tenants 的序号，从1开始)
+#   email: 账户邮箱
+#   path: 文件夹路径 (可选，默认为 /)
+
+个人网盘:
+  工作文件: "1:user@example.com:/Work"
+  学习资料: "1:user@example.com:/Study"

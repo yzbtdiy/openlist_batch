@@ -1,5 +1,5 @@
-module github.com/yzbtdiy/alist_batch
+module github.com/yzbtdiy/openlist_batch
 
-go 1.19
+go 1.25
 
 require gopkg.in/yaml.v3 v3.0.1

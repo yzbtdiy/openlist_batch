@@ -1,45 +1,181 @@
-## Alist批量添加阿里云资源(Golang)
+# OpenList Batch
 
-* 使用 Golang 实现了 Alist 批量添加阿里云盘分享, PikPak分享, OneDrive APP
-* 自动获取并保存 token
-* 操作前验证 cookie 有效性, cookie 无效自动更新
-* 配置文件和分享链接文件使用 yaml 文件保存
+自用 OpenList 批量存储管理工具，目前支持批量添加阿里云盘、PikPak、OneDrive 分享链接。
 
-网友**DayoWong0**提供了一个油猴脚本可以从浏览器打开的阿里云盘链接抓取资源名和链接, 大家可以试试 [脚本地址](https://greasyfork.org/zh-CN/scripts/457223-%E5%A4%8D%E5%88%B6%E4%B8%BA%E6%B7%BB%E5%8A%A0%E5%88%B0alist%E9%98%BF%E9%87%8C%E4%BA%91%E7%9B%98%E5%88%86%E4%BA%AB%E9%93%BE%E6%8E%A5%E7%9A%84%E6%A0%BC%E5%BC%8F)
+OpenList Github仓库地址: https://github.com/OpenListTeam/OpenList
 
-#### 如果您不了解Alist, 请查看官网 [https://alist.nn.ci/zh/](https://alist.nn.ci/zh/)
+## 功能特性
 
-### 用法说明
+- 🚀 批量添加阿里云盘分享链接
+- 🚀 批量添加 PikPak 分享链接
+- 🚀 批量添加 OneDrive APP
+- 🔄 自动获取并保存 Token
+- 🗑️ 批量删除存储（支持删除禁用/全部）
+- 🔧 批量更新阿里云盘 RefreshToken
 
-[Bilibili视频介绍](https://www.bilibili.com/video/BV1uP411K747)
+## 项目结构
 
-* Golang 编译的二进制文件可直接运行(alist_batch.exe)
-  * 初次运行会自动生成配置模板 config.yaml
-  * 在 config.yaml 文件中添加 alist 地址, url 结尾不需要 /
-  * 在 config.yaml 文件中 username 和 password 字段后添加 alist 登录账号和密码
-  * 添加阿里云盘分享链接请设置aliyun下的enable为true, 添加pikpak分享链接请设置pikpak下的enable为true
-    * 添加阿里云盘分享在配置文件 aliyun 下 refresh_token 字段后添加阿里云盘的 refresh_token
-    * 添加pikpak分享在配置文件 pikpak 下的 username 和 password 字段后添加pikpak用户和密码
-    * 支持有提取码的分享链接, 在链接结尾添加 `?pwd=提取码` 即可(阿里云盘和pikpak分享链接都支持)
-  * 在 ali_share.yaml 或者 pik_share.yaml 文件中添加资源的分类
-  * 在 ali_share.yaml 或 pik_share.yaml 文件分类下级添加 `资源名: 分享资源链接`
-    * 阿里云盘分享链接需要包含 folder 后的 id, pikpak 分享链接可以不添加 root_folder_id
-  * 修改后运行 alist_batch.exe 即可, 推荐命令行执行, 双击运行不会输出信息
-  * `alist_batch.exe -delete dis` 删除已禁用存储
-  * `alist_batch.exe -delete all` 删除所有添加的存储(慎用)
-  * `alist_batch.exe -update ali` 更新已挂载阿里云存储的refresh_token
+```
+openlist_batch/
+├── cmd/
+│   └── openlist_batch/
+│       └── main.go           # 程序入口
+├── internal/
+│   ├── client/
+│   │   └── http.go           # HTTP 客户端封装
+│   ├── config/
+│   │   ├── config.go         # 配置结构定义
+│   │   ├── loader.go         # 配置加载器
+│   │   └── templates/        # 配置模板
+│   │       ├── config.yaml
+│   │       ├── aliyun.yaml
+│   │       ├── pikpak.yaml
+│   │       └── onedrive.yaml
+│   ├── model/
+│   │   ├── request.go        # 请求模型
+│   │   └── response.go       # 响应模型
+│   ├── provider/
+│   │   ├── provider.go       # 提供商接口
+│   │   ├── aliyun.go         # 阿里云盘
+│   │   ├── pikpak.go         # PikPak
+│   │   └── onedrive.go       # OneDrive
+│   └── service/
+│       └── batch.go          # 批处理服务
+├── go.mod
+└── README.md
+```
 
-* 下载源码编译
-  * `git clone https://github.com/yzbtdiy/alist_batch.git`
-  * `cd alist_batch`
-  * `go mod tidy`
-  * `go build .`
+## 安装
 
-* 使用 `go install` 安装
-  * `go install github.com/yzbtdiy/alist_batch@latest`
+### 从源码编译
 
-### other
+```bash
+git clone https://github.com/yzbtdiy/openlist_batch.git
+cd openlist_batch
+go mod tidy
+go build -o openlist_batch ./cmd/openlist_batch
+```
 
-* alist 的登录用户和密码仅用于自动获取 cookie, 手动获取有效cookie填入config.yaml可以不用添加用户和密码
-* 目前实现了阿里云盘分享链接和 PikPak 分享链接, OneDrive APP的批量添加
-* 此工具只是批量挂载工具, 挂载后视频不能播放请关注alist的github issues
+### 使用 go install
+
+```bash
+go install github.com/yzbtdiy/openlist_batch/cmd/openlist_batch@latest
+```
+
+## 使用方法
+
+### 1. 初始化配置
+
+首次运行会自动生成配置模板：
+
+```bash
+./openlist_batch
+```
+
+### 2. 编辑配置文件
+
+编辑 `config.yaml`，填写 OpenList 地址和认证信息：
+
+```yaml
+url: http://localhost:5244  # OpenList 地址
+auth:
+  username: admin           # 用户名
+  password: password        # 密码
+token: ""                   # Token（可选，会自动获取）
+
+aliyun:
+  enable: true              # 是否启用阿里云盘
+  refresh_token: xxx        # 阿里云盘 RefreshToken
+
+pikpak:
+  enable: false             # 使用启用 PikPak
+  use_transcoding_address: true
+  username: xxx
+  password: xxx
+
+onedrive_app:
+  enable: false             # 是否启用 OneDrive
+  region: global
+  tenants:
+    - id: 1
+      client_id: xxx
+      client_secret: xxx
+      tenant_id: xxx
+```
+
+### 3. 添加分享链接
+
+根据启用的存储类型，编辑对应的分享文件：
+
+**aliyun.yaml** (阿里云盘):
+```yaml
+电视剧:
+  西游记86版: https://www.aliyundrive.com/s/MmMR3zaoXLf/folder/61d259418d27bae8656f47aca23ee03b40275432
+
+电影:
+  新海诚&宫崎骏合集: https://www.aliyundrive.com/s/FzcMCgG8YwC/folder/61ffb364be026f8c1b764182922eaeb2d3950ef4
+  林正英合集: https://www.aliyundrive.com/s/PrcaqZ2XPxM/folder/621c950a633c7c7ab8de4db1a86a1232dea530d1
+```
+
+**pikpak.yaml** (PikPak):
+```yaml
+电影:
+  太空之城: https://mypikpak.com/s/VNP2_7OhUCdC2aI3JSSnD--eo1
+  阿飞正传: https://mypikpak.com/s/VNP2d8tHvt4TVPKPacCUYRaXo1/VNP2G0YUcYmtVw025fNVqgDdo1
+```
+
+**onedrive.yaml** (OneDrive):
+```yaml
+个人网盘:
+  工作文件: 1:user@example.com:/Work
+  游戏娱乐: 1:user@xxx.onmicrosoft.com:/Games
+```
+
+### 4. 运行
+
+```bash
+# 批量添加
+./openlist_batch
+
+# 删除禁用的存储
+./openlist_batch -delete dis
+
+# 删除所有存储（慎用）
+./openlist_batch -delete all
+
+# 更新阿里云盘 RefreshToken
+./openlist_batch -update ali
+```
+
+## 分享链接格式
+
+### 阿里云盘
+```
+https://www.alipan.com/s/shareId/folder/folderId?pwd=提取码
+```
+注意：链接必须包含 `folder/folderId` 部分
+
+### PikPak
+```
+https://mypikpak.com/s/shareId
+https://mypikpak.com/s/shareId/folderId?pwd=提取码
+```
+
+### OneDrive
+```
+tid:email:path
+```
+- `tid`: 租户ID索引（对应 config.yaml 中 tenants 的序号，从1开始）
+- `email`: 账户邮箱
+- `path`: 文件夹路径（可选，默认为 /）
+
+## 注意事项
+
+- OpenList URL 结尾不要加 `/`
+- 首次运行需要配置用户名密码或有效 Token
+- 阿里云盘分享链接需要包含 folder 后的 id
+- 此工具仅用于批量挂载，播放问题请参考 OpenList 官方文档
+
+## 许可证
+
+MIT License
