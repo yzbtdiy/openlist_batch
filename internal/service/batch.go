@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/yzbtdiy/openlist_batch/internal/client"
@@ -339,15 +340,17 @@ func (s *BatchService) ExportPikPakShare() (config.ShareList, error) {
 			continue
 		}
 
-		// 解析 mount_path: /分类/资源名
+		// 解析 mount_path: /分类/.../资源名
+		// 最后一级为资源名，之前的路径合并为分类
 		parts := splitMountPath(item.MountPath)
 		if len(parts) < 2 {
 			log.Printf("跳过无效的挂载路径: %s", item.MountPath)
 			continue
 		}
 
-		category := parts[0]
-		name := parts[1]
+		// 除最后一级外的所有部分作为分类，用 / 连接
+		category := strings.Join(parts[:len(parts)-1], "/")
+		name := parts[len(parts)-1]
 
 		// 解析 addition 获取分享信息
 		var addition model.PikPakShareAddition
